@@ -3491,15 +3491,17 @@ if choice == "conversation history":
             st.text(f"Chatbot Response: {row[1]}")
             st.text(f"Timestamp: {row[2]}")
             st.markdown("---")
+
 elif choice == "About":
-  st.write("this is a intent based chatbot")
-  st.subheader("project overview")
-  st.write("""This project is an intent-based chatbot with emotion detection.
+    st.write("This is an intent-based chatbot")
+    st.subheader("Project Overview")
+    st.write("""This project is an intent-based chatbot with emotion detection.
     It uses machine learning to identify user intents like greetings or help requests and
     VADER sentiment analysis to detect emotions (positive, negative, or neutral).
     The chatbot responds accordingly, combining intent and sentiment for a more personalized interaction.
-     It is deployed using Streamlit for a user-friendly web interface.""")
-else :
+    It is deployed using Streamlit for a user-friendly web interface.""")
+
+else: 
     st.write("some message")
 if __name__ == "__main__":
     main()
