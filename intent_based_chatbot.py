@@ -3493,8 +3493,8 @@ elif choice == "conversation history":
             st.markdown("---")
 elif choice == "About":
   st.write("this is a intent based chatbot")
-    st.subheader("project overview")
-    st.write("""This project is an intent-based chatbot with emotion detection.
+  st.subheader("project overview")
+  st.write("""This project is an intent-based chatbot with emotion detection.
     It uses machine learning to identify user intents like greetings or help requests and
     VADER sentiment analysis to detect emotions (positive, negative, or neutral).
     The chatbot responds accordingly, combining intent and sentiment for a more personalized interaction.
