@@ -3477,7 +3477,7 @@ if user_input:
   with open('chat_log.csv', 'a', newline='',encoding='utf-8') as csvfile:
     csv_writer = csv.writer(csvfile)
     csv_writer.writerow([user_input_str, response, timestamp])
-  if response.lower() in {'goodbye', 'bye'}
+  if response.lower() in {'goodbye', 'bye'}:
     st.write("Chatbot: Goodbye! Have a great day!")
     st.stop()
 
