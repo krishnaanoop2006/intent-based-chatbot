@@ -7,8 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1DGCmJo5iksFFmcS3LqXks8_yRvIJ0ZWG
 """
 
-!pip install streamlit
-!pip install vaderSentiment
+
 
 import os
 import json
