@@ -3467,7 +3467,7 @@ def main():
             csv_writer.writerow(['User Input', 'Chatbot Response','Timastamp'])
 
 counter +=1
-user input = st.text_input("You:", key=f"user_input_{counter}")
+user_input = st.text_input("You:", key=f"user_input_{counter}")
 if user_input:
   user_input_str = str(user_input)
   response = chatbot(user_input)
