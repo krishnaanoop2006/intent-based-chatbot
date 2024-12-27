@@ -3460,7 +3460,7 @@ def main():
   menu = ["Home", "About","conversation history"]
   choice = st.sidebar.selectbox("Menu", menu)
   if choice == "Home":
-    st.write(hi..how are you..i am chatbot ...lets start conversation)
+    st.write("hi..how are you..i am chatbot ...lets start conversation")
     if not os.path.exists('chat_log.csv'):
         with open('chat_log.csv', 'w', newline='',encoding='utf-8') as csvfile:
             csv_writer = csv.writer(csvfile)
