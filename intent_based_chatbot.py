@@ -3480,7 +3480,7 @@ if user_input:
   if response.lower() in {'goodbye', 'bye'}:
     st.write("Chatbot: Goodbye! Have a great day!")
     st.stop()
-
+choice == "conversation history"
 if choice == "conversation history":
     st.header("Conversation History")
     with open('chat_log.csv', 'r', encoding='utf-8') as csvfile:
