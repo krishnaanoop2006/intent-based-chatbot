@@ -3481,7 +3481,7 @@ if user_input:
     st.write("Chatbot: Goodbye! Have a great day!")
     st.stop()
 
-elif choice == "conversation history":
+if choice == "conversation history":
     st.header("Conversation History")
     with open('chat_log.csv', 'r', encoding='utf-8') as csvfile:
         csv_reader = csv.reader(csvfile)
@@ -3499,5 +3499,7 @@ elif choice == "About":
     VADER sentiment analysis to detect emotions (positive, negative, or neutral).
     The chatbot responds accordingly, combining intent and sentiment for a more personalized interaction.
      It is deployed using Streamlit for a user-friendly web interface.""")
+else :
+    st.write("some message")
 if __name__ == "__main__":
     main()
