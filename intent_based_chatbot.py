@@ -7,8 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1DGCmJo5iksFFmcS3LqXks8_yRvIJ0ZWG
 """
 
-
-
 import os
 import json
 import datetime
@@ -3377,131 +3375,76 @@ intents = [
     }
 ]
 
-# prompt: intent based chatbox with emotion recognition
-
-import os
-import nltk
-import ssl
-import streamlit as st
-import random
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-import re
-
-# Download required NLTK data (only needed once)
-try:
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
-
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-
-
-# Sample training data (expand this with more examples and emotions)
-training_data = {
-    "greetings": [
-        {"text": "Hi", "intent": "greeting", "emotion": "neutral"},
-        {"text": "Hello", "intent": "greeting", "emotion": "neutral"},
-        {"text": "Hey there", "intent": "greeting", "emotion": "happy"},
-        {"text": "Good morning", "intent": "greeting", "emotion": "happy"}
-    ],
-    "farewells": [
-        {"text": "Bye", "intent": "farewell", "emotion": "neutral"},
-        {"text": "Goodbye", "intent": "farewell", "emotion": "neutral"},
-        {"text": "See you later", "intent": "farewell", "emotion": "happy"},
-        {"text": "Take care", "intent": "farewell", "emotion": "concerned"}
-    ],
-    "help": [
-      {"text": "I need help", "intent": "help", "emotion": "sad"},
-      {"text": "I'm stuck", "intent": "help", "emotion": "frustrated"},
-      {"text": "Can you help me?", "intent": "help", "emotion": "neutral"}
-    ]
-}
-
 vectorizer = TfidfVectorizer()
 clf = LogisticRegression(random_state=0, max_iter=10000)
-
-# Preprocess the data
-tags = []
-patterns = []
+tags, patterns = [], []
 for intent in intents:
     for pattern in intent['patterns']:
         tags.append(intent['tag'])
         patterns.append(pattern)
-
 x = vectorizer.fit_transform(patterns)
 y = tags
 clf.fit(x, y)
 
-
+# Sentiment Analyzer
 analyzer = SentimentIntensityAnalyzer()
 
+def analyze_sentiment(user_message):
+    sentiment = analyzer.polarity_scores(user_message)
+    return "Positive" if sentiment['compound'] >= 0.05 else "Negative" if sentiment['compound'] <= -0.05 else "Neutral"
+
 def chatbot(input_text):
-    # Transform the input text using the vectorizer
-    input_text = vectorizer.transform([input_text])
-
-    # Predict the intent and emotion
-    tag = clf.predict(input_text)[0]
-
-    # Find the matching intent
-    for intent in intents:  # Adjust loop if data is intents directly
+    input_text_vec = vectorizer.transform([input_text])
+    tag = clf.predict(input_text_vec)[0]
+    emotion = analyze_sentiment(input_text)
+    for intent in intents:
         if intent['tag'] == tag:
-            # Choose a random response
             response = random.choice(intent['responses'])
-            return response
-counter = 0
+            return f"{response} (Detected Emotion: {emotion})"
+    return "I'm not sure how to respond to that. (Emotion: Neutral)"
 
+# Streamlit app
 def main():
-  global counter
-  st.title("Intent based Chatbot")
-  menu = ["Home", "About","conversation history"]
-  choice = st.sidebar.selectbox("Menu", menu)
-  if choice == "Home":
-    st.write("hi..how are you..i am chatbot ...lets start conversation")
-    if not os.path.exists('chat_log.csv'):
-        with open('chat_log.csv', 'w', newline='',encoding='utf-8') as csvfile:
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(['User Input', 'Chatbot Response','Timastamp'])
+    st.title("Intent-based Chatbot")
+    menu = ["Home", "About", "Conversation History"]
+    choice = st.sidebar.selectbox("Menu", menu)
 
-counter +=1
-user_input = st.text_input("You:", key=f"user_input_{counter}")
-if user_input:
-  user_input_str = str(user_input)
-  response = chatbot(user_input)
-  st.text_area("Chatbot:", value=response, height=120, max_chars=None, key=f"chatbot_response_{counter}")
+    if choice == "Home":
+        st.write("Hi, I'm your chatbot. Let's start a conversation!")
+        if "counter" not in st.session_state:
+            st.session_state["counter"] = 0
 
-  timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-  with open('chat_log.csv', 'a', newline='',encoding='utf-8') as csvfile:
-    csv_writer = csv.writer(csvfile)
-    csv_writer.writerow([user_input_str, response, timestamp])
-  if response.lower() in {'goodbye', 'bye'}:
-    st.write("Chatbot: Goodbye! Have a great day!")
-    st.stop()
-choice = "conversation history"
-if choice == "conversation history":
-    st.header("Conversation History")
-    with open('chat_log.csv', 'r', encoding='utf-8') as csvfile:
-        csv_reader = csv.reader(csvfile)
-        next(csv_reader)  # Skip the header row
-        for row in csv_reader:
-            st.text(f"User Input: {row[0]}")
-            st.text(f"Chatbot Response: {row[1]}")
-            st.text(f"Timestamp: {row[2]}")
-            st.markdown("---")
+        user_input = st.text_input("You:", key=f"user_input_{st.session_state['counter']}")
+        if user_input:
+            st.session_state["counter"] += 1
+            response = chatbot(user_input)
+            st.text_area("Chatbot:", value=response, height=120, max_chars=None)
 
-elif choice == "About":
-    st.write("This is an intent-based chatbot")
-    st.subheader("Project Overview")
-    st.write("""This project is an intent-based chatbot with emotion detection.
-    It uses machine learning to identify user intents like greetings or help requests and
-    VADER sentiment analysis to detect emotions (positive, negative, or neutral).
-    The chatbot responds accordingly, combining intent and sentiment for a more personalized interaction.
-    It is deployed using Streamlit for a user-friendly web interface.""")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                with open('chat_log.csv', 'a', newline='', encoding='utf-8') as csvfile:
+                    csv_writer = csv.writer(csvfile)
+                    csv_writer.writerow([user_input, response, timestamp])
+            except IOError:
+                st.error("Unable to write to chat log.")
 
-else: 
-    st.write("some message")
+    elif choice == "Conversation History":
+        st.header("Conversation History")
+        if os.path.exists('chat_log.csv'):
+            with open('chat_log.csv', 'r', encoding='utf-8') as csvfile:
+                csv_reader = csv.reader(csvfile)
+                next(csv_reader)
+                for row in csv_reader:
+                    st.text(f"User Input: {row[0]}")
+                    st.text(f"Chatbot Response: {row[1]}")
+                    st.text(f"Timestamp: {row[2]}")
+                    st.markdown("---")
+        else:
+            st.warning("No conversation history found.")
+
+    elif choice == "About":
+        st.subheader("Project Overview")
+        st.write("This is an intent-based chatbot that uses machine learning and sentiment analysis.")
+
 if __name__ == "__main__":
     main()
